@@ -1,0 +1,25 @@
+rvalue: 1, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 21
+lvalue: 2, 4, 16
+Неоднозначно: 19, 20
+
+1) 100 - rvalue
+2) a - lvalue
+3) a + 1 - rvalue
+4) l - lvalue
+5) r - rvalue
+6) l + r - rvalue
+7) std::abs(a) - rvalue
+8) funca() - rvalue
+9) funcb(a) - rvalue
+10) funcb(l) - rvalue
+11) funcb(r) - rvalue
+12) funcc(a) - rvalue
+13) funcc(l) - rvalue
+14) funcc(r) - rvalue
+15) static_cast<int>(a) - rvalue
+16) static_cast<int&>(a) - lvalue
+17) static_cast<int&&>(a) - rvalue
+18) static_cast<int&&>(r) - rvalue
+19) rand() > 5 ? a : 10 - rvalue если rand() > 5, иначе lvalue
+20) rand() > 5 ? a : r - rvalue если rand() > 5, иначе lvalue
+21) +a - rvalue

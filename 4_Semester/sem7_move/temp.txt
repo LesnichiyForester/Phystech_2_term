@@ -1,0 +1,9 @@
+void print()
+void push_front(T elem)
+void push_back(T elem)
+std::unique_ptr<T> pop_front()
+std::unique_ptr<T> pop_back()
+void clear()
+template <typename F> void foreach(F f) - applies function f to ech element of the forward list. Function f takes input of T via variable reference.
+void swap(ForwardList& fl) - swaps contents of the argument forward list and the forward list, to which the method is applied.
+ForwardList copy() - returns a copy of the forward list.
