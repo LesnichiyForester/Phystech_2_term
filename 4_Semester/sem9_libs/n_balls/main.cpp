@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <set>
 
 using namespace std;
 
@@ -16,12 +17,12 @@ float length(sf::Vector2f vec) {
 
 struct Ball
 {
-    float radius;
-    float mass;
+    float radius = 1;
+    float mass = 1;
     sf::Vector2f position;
     sf::Vector2f velocity;
     sf::Vector2f acceleration;
-    float charge;
+    float charge = 1;
 };
 
 int status_report(Ball ball, int m) {
@@ -53,10 +54,27 @@ int main() {
 
     std::vector<Ball> balls;
     balls.resize(n_balls);
+
+    std::vector<sf::Vector2f> start_coords = {}; //создаем вектор начальных координат с проверкой на повторение
+    while (start_coords.size() < n_balls) {
+        sf::Vector2f temp = {(float)(rand() % (width - 20)) + 10, (float)(rand() % (height - 20)) + 10};
+        bool add = 1;
+        for (int j = 0; j < start_coords.size(); j++) {
+            if (length(temp - start_coords[j]) < 14)
+                add = 0;
+                break;
+        }
+        if (add)
+            start_coords.push_back(temp);
+    }
+    //for (int j = 0; j < start_coords.size(); j++)  
+        //cout << "(" << start_coords[j].x << "," << start_coords[j].y << ")";
+    //cout << endl;
     for (int i = 0; i < n_balls; i++) {
         balls[i].radius = 4 + rand() % 8;
         balls[i].mass = 4 * balls[i].radius * balls[i].radius;
-        balls[i].position = {(float)(rand() % (width - 20)) + 10, (float)(rand() % (height - 20)) + 10};
+        balls[i].position = start_coords[i]; //распечатка начальных координат
+        cout << "(" << balls[i].position.x << "," << balls[i].position.y << ")" << endl;
         balls[i].velocity = {(float)(rand() % 60 - 30), (float)(rand() % 60 - 30)};
         balls[i].acceleration = {0, 0};
         balls[i].charge = rand() / RAND_MAX * 1000 - 500;
@@ -83,10 +101,10 @@ int main() {
                 if (i == j)
                     continue;
                 float k = (balls[i].charge * balls[j].charge) / balls[i].mass;
-                balls[i].acceleration.x += k / (balls[i].position.x - balls[j].position.x) 
+                balls[i].acceleration.x += k * (balls[i].position.x - balls[j].position.x) 
                                            / length((balls[i].position - balls[j].position)) 
                                            / length((balls[i].position - balls[j].position)); 
-                balls[i].acceleration.y += k / (balls[i].position.y - balls[j].position.y) 
+                balls[i].acceleration.y += k * (balls[i].position.y - balls[j].position.y) 
                                            / length((balls[i].position - balls[j].position)) 
                                            / length((balls[i].position - balls[j].position));
             }
@@ -112,8 +130,8 @@ int main() {
                     float dot_product = normal.x * relative_velocity.x + normal.y * relative_velocity.y;
                     if (dot_product < 0) {
                         sf::Vector2f impulse = (2.0f * dot_product / (1 / balls[i].mass + 1 / balls[j].mass)) * normal;
-                        balls[i].velocity += impulse / balls[i].mass;
-                        balls[j].velocity -= impulse / balls[j].mass;
+                        balls[i].velocity += impulse / (balls[i].mass * 4);
+                        balls[j].velocity -= impulse / (balls[j].mass * 4);
                         cout << balls[i].velocity.x << " " << balls[j].velocity.x << endl;
                         cout << balls[i].velocity.y << " " << balls[j].velocity.y << endl;
                     }
@@ -134,15 +152,22 @@ int main() {
 
             balls[i].position += balls[i].velocity * delta_t;
 
-            if (balls[i].position.x < 0)
+            if (balls[i].position.x < 0) {
                 balls[i].velocity.x = -balls[i].velocity.x;
-            if (balls[i].position.x > width)
+                balls[i].position.x = 0;
+            }
+            if (balls[i].position.x > width) {
                 balls[i].velocity.x = -balls[i].velocity.x;
-
-            if (balls[i].position.y < 0)
+                balls[i].position.x = width;
+            }
+            if (balls[i].position.y < 0) {
                 balls[i].velocity.y = -balls[i].velocity.y;
-            if (balls[i].position.y > height)
+                balls[i].position.y = 0;
+            }
+            if (balls[i].position.y > height) {
                 balls[i].velocity.y = -balls[i].velocity.y;
+                balls[i].position.y = height;
+            }
 
             // Используем 1 sf::CircleShape, чтобы нарисовать все шары
             circle.setRadius(balls[i].radius);
